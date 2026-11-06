@@ -1,0 +1,355 @@
+import { AppHeader, AppShell, Button, Sidebar } from '@commercebill/ui';
+import { useEffect, useRef } from 'react';
+import { NavLink, Navigate, Route, Routes, useNavigate } from 'react-router';
+import { useAuth } from './auth.js';
+import { ChangePasswordPage, ForcedChangePasswordPage } from './ChangePasswordPage.js';
+import { BackupPage } from './backup/BackupPage.js';
+import { AboutPage } from './backup/AboutPage.js';
+import { SettingsPage } from './backup/SettingsPage.js';
+import { CustomerFormPage } from './customers/CustomerFormPage.js';
+import { CustomersPage } from './customers/CustomersPage.js';
+import { CustomerReceivablePage, ReceivablesPage } from './payments/ReceivablesPage.js';
+import { PaymentsPage } from './payments/PaymentsPage.js';
+import { RecordPaymentPage } from './payments/RecordPaymentPage.js';
+import { InvoiceDetailPage } from './invoices/InvoiceDetailPage.js';
+import { InvoicesPage } from './invoices/InvoicesPage.js';
+import { PrintPreviewPage } from './invoices/PrintPreviewPage.js';
+import { NewInvoicePage } from './invoices/NewInvoicePage.js';
+import { InventoryPage } from './inventory/InventoryPage.js';
+import { InventoryProductPage } from './inventory/InventoryProductPage.js';
+import { StockOperationPage } from './inventory/StockOperationPage.js';
+import { OrderPage } from './orders/OrderPage.js';
+import { OrdersPage } from './orders/OrdersPage.js';
+import { LoginPage } from './LoginPage.js';
+import { BusinessProfilePage } from './settings/BusinessProfilePage.js';
+import { HsnSacPage } from './tax/HsnSacPage.js';
+import { TaxConfigurationPage } from './tax/TaxConfigurationPage.js';
+import { ProductFormPage } from './products/ProductFormPage.js';
+import { ProductsPage } from './products/ProductsPage.js';
+import { MODULES, visibleModules } from './nav.js';
+import { SetupWizard } from './setup/SetupWizard.js';
+import { DashboardPage } from './dashboard/DashboardPage.js';
+import { BootingPage, ModulePage, NotFoundPage, UnreachablePage } from './pages.js';
+
+/** A built module's screens, shown only to users holding the module's permission (the server still enforces it). */
+function Guarded({ module, children }: { module: string; children: React.ReactNode }) {
+  const { can } = useAuth();
+  const entry = MODULES.find((m) => m.key === module);
+  if (entry?.permission && !can(entry.permission)) return <ModulePage moduleKey={module} />;
+  return <>{children}</>;
+}
+
+/** A screen needing one more permission than its module: others see the module's "not available" page. */
+function PermissionGate({
+  permission,
+  moduleKey,
+  children,
+}: {
+  permission: string;
+  moduleKey: string;
+  children: React.ReactNode;
+}) {
+  const { can } = useAuth();
+  if (!can(permission)) return <ModulePage moduleKey={moduleKey} />;
+  return <>{children}</>;
+}
+
+function Shell() {
+  const { state, can, signOut } = useAuth();
+  const navigate = useNavigate();
+  if (state.phase !== 'signed-in') return null;
+  const { me } = state;
+  const items = visibleModules(can);
+  return (
+    <AppShell
+      header={
+        <AppHeader organization={me.organizationName}>
+          <span className="text-sm text-slate-700">{me.user.displayName}</span>
+          <Button variant="ghost" onClick={() => navigate('/account/password')}>
+            Change password
+          </Button>
+          <Button variant="secondary" onClick={() => void signOut()}>
+            Sign out
+          </Button>
+        </AppHeader>
+      }
+      sidebar={
+        <Sidebar
+          items={items}
+          renderLink={(item, className) => (
+            <NavLink
+              to={MODULES.find((m) => m.key === item.key)?.path ?? '/'}
+              end
+              className={({ isActive }) => className(isActive)}
+            >
+              {item.label}
+            </NavLink>
+          )}
+        />
+      }
+    >
+      <Routes>
+        <Route path="/" element={<DashboardPage />} />
+        <Route path="/account/password" element={<ChangePasswordPage />} />
+        <Route
+          path="/orders"
+          element={
+            <Guarded module="orders">
+              <OrdersPage />
+            </Guarded>
+          }
+        />
+        <Route
+          path="/orders/new"
+          element={
+            <Guarded module="orders">
+              <PermissionGate permission="sales.order.write" moduleKey="orders">
+                <OrderPage />
+              </PermissionGate>
+            </Guarded>
+          }
+        />
+        <Route
+          path="/orders/:id"
+          element={
+            <Guarded module="orders">
+              <OrderPage />
+            </Guarded>
+          }
+        />
+        <Route
+          path="/customers"
+          element={
+            <Guarded module="customers">
+              <CustomersPage />
+            </Guarded>
+          }
+        />
+        <Route
+          path="/customers/new"
+          element={
+            <Guarded module="customers">
+              <CustomerFormPage />
+            </Guarded>
+          }
+        />
+        <Route
+          path="/customers/:id"
+          element={
+            <Guarded module="customers">
+              <CustomerFormPage />
+            </Guarded>
+          }
+        />
+        <Route
+          path="/products"
+          element={
+            <Guarded module="products">
+              <ProductsPage />
+            </Guarded>
+          }
+        />
+        <Route
+          path="/products/new"
+          element={
+            <Guarded module="products">
+              <ProductFormPage />
+            </Guarded>
+          }
+        />
+        <Route
+          path="/products/:id"
+          element={
+            <Guarded module="products">
+              <ProductFormPage />
+            </Guarded>
+          }
+        />
+        <Route
+          path="/inventory"
+          element={
+            <Guarded module="inventory">
+              <InventoryPage />
+            </Guarded>
+          }
+        />
+        <Route
+          path="/inventory/:productId"
+          element={
+            <Guarded module="inventory">
+              <InventoryProductPage />
+            </Guarded>
+          }
+        />
+        <Route
+          path="/inventory/:productId/:action"
+          element={
+            <Guarded module="inventory">
+              <StockOperationPage />
+            </Guarded>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <Guarded module="settings">
+              <SettingsPage />
+            </Guarded>
+          }
+        />
+        <Route
+          path="/settings/business"
+          element={
+            <Guarded module="settings">
+              <BusinessProfilePage />
+            </Guarded>
+          }
+        />
+        <Route
+          path="/settings/about"
+          element={
+            <Guarded module="settings">
+              <AboutPage />
+            </Guarded>
+          }
+        />
+        <Route
+          path="/settings/backup"
+          element={
+            <Guarded module="settings">
+              <PermissionGate permission="backup.history.read" moduleKey="settings">
+                <BackupPage />
+              </PermissionGate>
+            </Guarded>
+          }
+        />
+        <Route
+          path="/tax"
+          element={
+            <Guarded module="tax">
+              <TaxConfigurationPage />
+            </Guarded>
+          }
+        />
+        <Route
+          path="/tax/hsn-sac"
+          element={
+            <Guarded module="tax">
+              <HsnSacPage />
+            </Guarded>
+          }
+        />
+        <Route
+          path="/billing"
+          element={
+            <Guarded module="billing">
+              <InvoicesPage />
+            </Guarded>
+          }
+        />
+        <Route
+          path="/billing/new"
+          element={
+            <Guarded module="billing">
+              <NewInvoicePage />
+            </Guarded>
+          }
+        />
+        <Route
+          path="/billing/:id/payment"
+          element={
+            <Guarded module="payments">
+              <RecordPaymentPage />
+            </Guarded>
+          }
+        />
+        <Route
+          path="/payments"
+          element={
+            <Guarded module="payments">
+              <PaymentsPage />
+            </Guarded>
+          }
+        />
+        <Route
+          path="/receivables"
+          element={
+            <Guarded module="receivables">
+              <ReceivablesPage />
+            </Guarded>
+          }
+        />
+        <Route
+          path="/receivables/:customerId"
+          element={
+            <Guarded module="receivables">
+              <CustomerReceivablePage />
+            </Guarded>
+          }
+        />
+        <Route
+          path="/billing/:id/print"
+          element={
+            <Guarded module="billing">
+              <PrintPreviewPage />
+            </Guarded>
+          }
+        />
+        <Route
+          path="/billing/:id"
+          element={
+            <Guarded module="billing">
+              <InvoiceDetailPage />
+            </Guarded>
+          }
+        />
+        {MODULES.filter(
+          (m) =>
+            m.key !== 'dashboard' &&
+            m.key !== 'customers' &&
+            m.key !== 'products' &&
+            m.key !== 'inventory' &&
+            m.key !== 'billing' &&
+            m.key !== 'payments' &&
+            m.key !== 'receivables' &&
+            m.key !== 'tax' &&
+            m.key !== 'settings',
+        ).map((m) => (
+          <Route key={m.key} path={m.path} element={<ModulePage moduleKey={m.key} />} />
+        ))}
+        <Route path="/login" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </AppShell>
+  );
+}
+
+/** Chooses what the user can see from the launch check and the session state. Nothing else is reachable. */
+export function App() {
+  const { state, retryBoot, setupCompleted } = useAuth();
+  const navigate = useNavigate();
+  const wasSignedIn = useRef(false);
+  useEffect(() => {
+    // After SIGN-OUT, do not leave the previous location in the address. (A deep link followed before signing in is kept.)
+    if (state.phase === 'signed-in') wasSignedIn.current = true;
+    else if (wasSignedIn.current) {
+      wasSignedIn.current = false;
+      navigate('/', { replace: true });
+    }
+  }, [state.phase, navigate]);
+
+  switch (state.phase) {
+    case 'booting':
+      return <BootingPage />;
+    case 'unreachable':
+      return <UnreachablePage />;
+    case 'setup-required':
+      return (
+        <SetupWizard onCompleted={setupCompleted} onAlreadyCompleted={() => void retryBoot()} />
+      );
+    case 'signed-out':
+      return <LoginPage notice={state.notice} initialUsername={state.username} />;
+    case 'signed-in':
+      return state.me.mustChangePassword ? <ForcedChangePasswordPage /> : <Shell />;
+  }
+}

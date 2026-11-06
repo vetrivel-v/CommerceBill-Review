@@ -1,0 +1,40 @@
+{
+  "name": "@commercebill/web",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@commercebill/backup": "^0.0.1",
+    "@commercebill/customers": "^0.0.1",
+    "@commercebill/document-engine": "^0.0.1",
+    "@commercebill/inventory-engine": "^0.0.1",
+    "@commercebill/numbering": "^0.0.1",
+    "@commercebill/payments": "^0.0.1",
+    "@commercebill/products": "^0.0.1",
+    "@commercebill/sales-orders": "^0.0.1",
+    "@commercebill/setup": "^0.0.1",
+    "@commercebill/shared-types": "^0.0.1",
+    "@commercebill/tax-config": "^0.0.1",
+    "@commercebill/tax-engine": "^0.0.1",
+    "@commercebill/ui": "^0.0.1",
+    "@tanstack/react-query": "^5.104.3",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-router": "^8.4.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@testing-library/react": "^16.3.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "jsdom": "^30.1.3",
+    "tailwindcss": "^4.3.3",
+    "vite": "^8.3.4"
+  }
+}

@@ -1,0 +1,91 @@
+# ---- Dependencies, build output and generated code -------------------------------------------------------------------------------
+node_modules/
+dist/
+out/
+coverage/
+.vite/
+*.tsbuildinfo
+packages/database/src/generated/
+
+# ---- Local runtime data: development databases, the installed application's data folder, scratch files ---------------------------
+.data/
+cbdata/
+data/pg/
+pgdata/
+tmp/
+*.tmp
+*.partial
+runtime-status.json
+runtime.json
+secrets.bin
+
+# ---- Installers and packaging output (never committed; release/installer-info.json records name, version, hash) ------------------
+/release/
+win-unpacked/
+CommerceBill-Setup-*.exe
+*.exe
+*.msi
+*.blockmap
+*.dll
+*.node
+
+# ---- Logs ----------------------------------------------------------------------------------------------------------------------
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ---- Secrets and environment files (only the placeholder example is tracked) --------------------------------------------------
+.env
+.env.*
+!.env.example
+.npmrc
+*.pem
+*.key
+*.pfx
+*.p12
+*.jks
+*.keystore
+*.crt
+*.cer
+id_rsa*
+id_ed25519*
+*.kdbx
+*.secret
+service-account*.json
+credentials*.json
+.aws/
+.ssh/
+
+# ---- Backups, database dumps and exports that may hold real business data -----------------------------------------------------
+*.cbbackup
+*.dump
+*.bak
+*.sqlite
+*.sqlite3
+*.db
+*.sql.gz
+*.sql.zip
+backups/
+setup-draft*.json
+*.setup-draft.json
+
+# ---- Generated documents and archives (real invoices, customer files, review packages) ---------------------------------------
+*.pdf
+!docs/**/*.pdf
+!templates/**/*.pdf
+*.zip
+*.7z
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+
+# ---- Editor, OS and tool-local files ---------------------------------------------------------------------------------------------
+.claude/settings.local.json
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
